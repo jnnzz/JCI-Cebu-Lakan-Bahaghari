@@ -10,8 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.17",
+    "framer-motion": "^12.23.25",
+    "lucide-react": "^0.555.0",
+    "prop-types": "^15.8.1",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-intersection-observer": "^10.0.0",
+    "react-pageflip": "^2.0.3",
+    "react-router-dom": "^7.10.0",
+    "tailwindcss": "^4.1.17",
+    "three": "^0.181.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
