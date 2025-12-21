@@ -43,7 +43,7 @@ export default function Loading() {
         </motion.div>
 
         {/* Loading Text */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -54,7 +54,7 @@ export default function Loading() {
           <p className="text-sm text-[#FFBC00] uppercase tracking-widest">
             JCI CEBU LAKAN BAHAGHARI
           </p>
-        </motion.div>
+        </motion.div> */}
 
         {/* Animated Dots */}
         <div className="flex justify-center gap-2 mt-6">
