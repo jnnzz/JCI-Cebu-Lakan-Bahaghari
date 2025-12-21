@@ -1,8 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useScroll, Variants } from 'framer-motion';
 import { Menu, X, ArrowRight, TrendingUp, Users, Zap, BookOpen, MapPin, Mail, Phone } from 'lucide-react';
 import JCIlogo from '../assets/logo-JCI.png'; 
 import tribalImg from '../assets/tribal.jpg';
+
+// --- TYPES ---
+interface CTAButtonProps {
+  children: React.ReactNode;
+  primary?: boolean;
+  className?: string;
+  onClick?: () => void;
+}
+
+interface SectionTitleProps {
+  title: string;
+  subtitle: string;
+  align?: 'center' | 'left' | 'right';
+}
+
+interface HeaderProps {
+  activeSection: string;
+  scrollToSection: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
+}
+
+interface NavTab {
+  name: string;
+  href: string;
+}
 
 // --- CONSTANTS: THEME & FONTS ---
 const THEME = {
@@ -31,7 +55,7 @@ const NAV_TABS = [
 ];
 
 // --- FRAMER MOTION VARIANTS ---
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -39,7 +63,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { 
     opacity: 1, 
@@ -48,7 +72,7 @@ const itemVariants = {
   },
 };
 
-const tribalSlideUp = {
+const tribalSlideUp: Variants = {
   hidden: { opacity: 0, y: 50 },
   visible: {
     opacity: 1,
@@ -60,7 +84,7 @@ const tribalSlideUp = {
 // --- REUSABLE COMPONENTS ---
 
 // BUTTONS: Use 'Rye' here because buttons should feel like physical blocks/stamps
-const CTAButton = ({ children, primary = true, className = '', ...props }) => {
+const CTAButton: React.FC<CTAButtonProps> = ({ children, primary = true, className = '', onClick }) => {
   const bgColor = primary ? THEME.ACCENT_RED : 'transparent';
   const textColor = primary ? THEME.TEXT_PRIMARY : THEME.TEXT_PRIMARY;
   const borderColor = primary ? THEME.ACCENT_YELLOW : THEME.ACCENT_RED;
@@ -74,7 +98,7 @@ const CTAButton = ({ children, primary = true, className = '', ...props }) => {
       }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      {...props}
+      onClick={onClick}
     >
       {/* Background Shape */}
       <div 
@@ -94,9 +118,15 @@ const CTAButton = ({ children, primary = true, className = '', ...props }) => {
 };
 
 // TITLES: Use Pirata for the big text, Rye for the small "eyebrow" text
-const SectionTitle = ({ title, subtitle, align = 'center' }) => {
+const SectionTitle: React.FC<SectionTitleProps> = ({ title, subtitle, align = 'center' }) => {
   return (
-    <div className={`text-${align} mb-12 relative z-10`}>
+    <motion.div 
+      className={`text-${align} mb-12 relative z-10`}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={containerVariants}
+    >
       <motion.h3
         className="text-lg md:text-xl uppercase tracking-[0.2em] mb-4"
         style={{ 
@@ -119,7 +149,7 @@ const SectionTitle = ({ title, subtitle, align = 'center' }) => {
       >
         {title}
       </motion.h2>
-    </div>
+    </motion.div>
   );
 };
 
@@ -127,7 +157,7 @@ const TribalPatternBackground = () => {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
       <svg
-        className="absolute top-60 left-50 w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4 origin-center animate-slow-spin"
+        className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 origin-center"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 100 100"
         fill="none"
@@ -147,12 +177,12 @@ const TribalPatternBackground = () => {
 };
 
 // --- HEADER ---
-const Header = ({ activeSection, scrollToSection }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+const Header: React.FC<HeaderProps> = ({ activeSection, scrollToSection }) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
   useEffect(() => {
-    let timeoutId = null;
+    let timeoutId: NodeJS.Timeout | null = null;
     const handleScroll = () => {
       if(timeoutId) return;
       timeoutId = setTimeout(() => {
@@ -250,13 +280,13 @@ const Header = ({ activeSection, scrollToSection }) => {
 };
 
 // --- INTERACTIVE VISUAL ---
-const InteractiveTribalVisual = () => {
+const InteractiveTribalVisual: React.FC = () => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useTransform(y, [-100, 100], [10, -10]); 
   const rotateY = useTransform(x, [-100, 100], [-10, 10]);
 
-  function handleMouse(event) {
+  function handleMouse(event: React.MouseEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
     const xPct = (event.clientX - rect.left) / rect.width - 0.5;
     const yPct = (event.clientY - rect.top) / rect.height - 0.5;
@@ -335,11 +365,22 @@ const InteractiveTribalVisual = () => {
 // --- SECTIONS ---
 
 const HeroSection = () => {
+  const { scrollY } = useScroll();
+  
+  // Subtle parallax - moves just a bit
+  const y = useTransform(scrollY, [0, 800], [0, 150]);
+  const scale = useTransform(scrollY, [0, 800], [1, 1.1]);
+  const opacity = useTransform(scrollY, [0, 200, 400], [1, 0.4, 0]);
+  
   return (
     <motion.section
       id="home"
-      className="min-h-screen flex items-center pt-28 relative overflow-hidden"
-      style={{ backgroundColor: THEME.BG_PRIMARY }}
+      className="h-screen flex items-center pt-28 relative overflow-hidden sticky top-0"
+      style={{ 
+        backgroundColor: THEME.BG_PRIMARY,
+        y,
+        scale,
+      }}
       initial="hidden" whileInView="visible" viewport={{ once: true }}
     >
       <TribalPatternBackground />
@@ -354,7 +395,10 @@ const HeroSection = () => {
           </h1>
       </div>
 
-      <div className="max-w-full xl:max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20">
+      <motion.div 
+        className="max-w-full xl:max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20"
+        style={{ opacity }}
+      >
         <div className="grid md:grid-cols-12 gap-8 items-center">
           <div className="md:col-span-7">
             <motion.div variants={containerVariants}>
@@ -386,7 +430,7 @@ const HeroSection = () => {
               </motion.p>
 
               <motion.div className="flex flex-wrap gap-4 mt-12" variants={itemVariants}>
-                <CTAButton>Join The Tribe</CTAButton>
+                <CTAButton>Join Us Now</CTAButton>
                 <CTAButton primary={false}>
                   Our Mission <ArrowRight className="inline ml-2 w-5 h-5" />
                 </CTAButton>
@@ -398,7 +442,7 @@ const HeroSection = () => {
               <InteractiveTribalVisual />
           </div>
         </div>
-      </div>
+      </motion.div>
     </motion.section>
   );
 };
@@ -407,7 +451,7 @@ const VisionMissionSection = () => {
   return (
     <motion.section
       id="about"
-      className="py-24 relative z-10"
+      className="py-24 relative z-30"
       style={{ backgroundColor: THEME.BG_SECONDARY }}
       initial="hidden" whileInView="visible" viewport={{ amount: 0.1, once: true }}
       variants={containerVariants}
@@ -556,13 +600,20 @@ const Footer = () => {
 };
 
 // --- MAIN APP ---
-const App = () => {
-    const [activeSection, setActiveSection] = useState('home');
+const App: React.FC = () => {
+    const [activeSection, setActiveSection] = useState<string>('home');
 
-    const scrollToSection = (e, href) => {
+    const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
       e.preventDefault();
       const id = href.substring(1);
       setActiveSection(id);
+      
+      // Special case for home - scroll to top
+      if (id === 'home') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      
       const element = document.getElementById(id);
       if (element) {
         window.scrollTo({ top: element.offsetTop - 90, behavior: 'smooth' });
@@ -587,7 +638,7 @@ const App = () => {
     }, []);
 
   return (
-    <div style={{ fontFamily: FONTS.BODY, backgroundColor: THEME.BG_PRIMARY }} className="min-h-screen text-white">
+    <div style={{ fontFamily: FONTS.BODY, backgroundColor: THEME.BG_PRIMARY }} className="min-h-screen text-white overflow-x-hidden">
       <style>{`
         /* FONT STRATEGY:
            1. Pirata One: Headings / Logo (The Tribal feel)
@@ -611,10 +662,77 @@ const App = () => {
         <VisionMissionSection />
         <FeatureModulesSection />
         
-        {/* Placeholder for Events */}
-        <section id="events" className="h-[50vh] flex items-center justify-center text-4xl relative z-10" style={{backgroundColor: THEME.BG_SECONDARY, color: THEME.TEXT_PRIMARY, fontFamily: FONTS.HEADLINE}}>
-            <TribalPatternBackground />
-            <h2>Events Section Coming Soon...</h2>
+        {/* Events Section */}
+        <section id="events" className="py-24 relative z-10" style={{backgroundColor: THEME.BG_SECONDARY}}>
+          <TribalPatternBackground />
+          <div className="max-w-full xl:max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+            <SectionTitle title="Upcoming Events" subtitle="Join The Movement" />
+            
+            <div className="grid md:grid-cols-3 gap-8 mt-16">
+              {[
+                { title: 'Leadership Summit 2025', date: 'March 15, 2025', location: 'Cebu City Hall' },
+                { title: 'Community Outreach', date: 'April 20, 2025', location: 'Barangay Lahug' },
+                { title: 'Annual General Meeting', date: 'May 10, 2025', location: 'JCI Cebu Office' }
+              ].map((event, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  whileHover={{ y: -8 }}
+                  className="group cursor-pointer"
+                >
+                  <div className="relative overflow-hidden rounded-lg border-2" style={{ borderColor: THEME.ACCENT_RED }}>
+                    {/* Image Placeholder */}
+                    <div className="relative h-64 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center overflow-hidden">
+                      <div className="absolute inset-0 opacity-20" style={{
+                        backgroundImage: `repeating-linear-gradient(45deg, ${THEME.ACCENT_YELLOW} 0, ${THEME.ACCENT_YELLOW} 10px, transparent 10px, transparent 20px)`,
+                      }}></div>
+                      <div className="relative z-10 text-center">
+                        <BookOpen size={64} className="mx-auto mb-2 opacity-40" style={{ color: THEME.ACCENT_YELLOW }} />
+                        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest" style={{ fontFamily: FONTS.BODY }}>
+                          Event Image
+                        </p>
+                      </div>
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300"></div>
+                    </div>
+                    
+                    {/* Event Details */}
+                    <div className="p-6" style={{ backgroundColor: THEME.BG_PRIMARY }}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded" 
+                             style={{ backgroundColor: THEME.ACCENT_RED, color: THEME.TEXT_PRIMARY, fontFamily: FONTS.ACCENT }}>
+                          {event.date}
+                        </div>
+                      </div>
+                      
+                      <h3 className="text-2xl mb-3 uppercase group-hover:text-yellow-400 transition-colors" 
+                          style={{ color: THEME.TEXT_PRIMARY, fontFamily: FONTS.HEADLINE }}>
+                        {event.title}
+                      </h3>
+                      
+                      <div className="flex items-center text-sm mb-4" style={{ color: THEME.ACCENT_YELLOW, fontFamily: FONTS.BODY }}>
+                        <MapPin size={16} className="mr-2" />
+                        <span>{event.location}</span>
+                      </div>
+                      
+                      <p className="text-gray-400 text-sm leading-relaxed mb-4" style={{ fontFamily: FONTS.BODY }}>
+                        Join us for an inspiring event focused on community development, leadership growth, and creating positive change in Cebu.
+                      </p>
+                      
+                      <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: THEME.ACCENT_RED }}>
+                        <span className="text-xs uppercase tracking-wider font-bold" style={{ color: THEME.ACCENT_YELLOW, fontFamily: FONTS.BODY }}>
+                          Learn More
+                        </span>
+                        <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" style={{ color: THEME.ACCENT_RED }} />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </section>
       </main>
       <Footer />

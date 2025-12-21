@@ -7,6 +7,51 @@ import {
 } from 'lucide-react';
 import JCIlogo from '../assets/logo-JCI.png'; 
 
+// --- TYPES ---
+interface AdminButtonProps {
+  children: React.ReactNode;
+  variant?: 'primary' | 'success' | 'outline';
+  className?: string;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+}
+
+interface TribalCardProps {
+  children: React.ReactNode;
+  title?: string;
+  className?: string;
+}
+
+interface Stat {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+  trend: string;
+}
+
+interface Project {
+  id: number;
+  title: string;
+  proponent: string;
+  status: 'Proposed' | 'In Progress' | 'Completed';
+  date: string;
+}
+
+interface Member {
+  id: number;
+  name: string;
+  role: string;
+  status: 'Active' | 'Separated';
+  dues: 'Paid' | 'Pending' | 'N/A';
+}
+
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+}
+
 // --- CONSTANTS: THEME & FONTS (MATCHING YOUR LANDING PAGE) ---
 const THEME = {
   BG_PRIMARY: '#3E2723',    // Deep Brown
@@ -24,21 +69,21 @@ const FONTS = {
 };
 
 // --- MOCK DATA (BASED ON PDF REQUIREMENTS) ---
-const MOCK_STATS = [
+const MOCK_STATS: Stat[] = [
   { label: 'Total Members', value: '142', icon: <Users />, trend: '+12%' },
   { label: 'Inducted', value: '89', icon: <Check />, trend: '+5%' },
   { label: 'Annual Dues', value: '₱45k', icon: <DollarSign />, trend: 'Collected' },
   { label: 'Recruitment Rate', value: '18%', icon: <TrendingUp />, trend: 'vs last mo' },
 ];
 
-const MOCK_PROJECTS = [
+const MOCK_PROJECTS: Project[] = [
   { id: 1, title: 'Barangay Clean-up', proponent: 'Comm. Juan', status: 'Proposed', date: '2025-02-10' },
   { id: 2, title: 'Youth Leadership Summit', proponent: 'VP Sarah', status: 'In Progress', date: '2025-03-15' },
   { id: 3, title: 'Charity Gala', proponent: 'Pres. Matt', status: 'Proposed', date: '2025-04-20' },
   { id: 4, title: 'Tech Bootcamp', proponent: 'Dir. Alex', status: 'Completed', date: '2025-01-10' },
 ];
 
-const MOCK_MEMBERS = [
+const MOCK_MEMBERS: Member[] = [
   { id: 1, name: 'Juan Dela Cruz', role: 'Member', status: 'Active', dues: 'Paid' },
   { id: 2, name: 'Maria Clara', role: 'VP Internal', status: 'Active', dues: 'Pending' },
   { id: 3, name: 'Jose Rizal', role: 'Alumni', status: 'Separated', dues: 'N/A' },
@@ -47,7 +92,7 @@ const MOCK_MEMBERS = [
 // --- REUSABLE COMPONENTS ---
 
 // 1. Tribal Button (Reused)
-const AdminButton = ({ children, variant = 'primary', className = '', ...props }) => {
+const AdminButton: React.FC<AdminButtonProps> = ({ children, variant = 'primary', className = '', onClick, type, disabled }) => {
   const isPrimary = variant === 'primary';
   const bgColor = isPrimary ? THEME.ACCENT_RED : variant === 'success' ? THEME.SUCCESS_GREEN : 'transparent';
   const borderColor = isPrimary ? THEME.ACCENT_YELLOW : THEME.ACCENT_RED;
@@ -56,9 +101,11 @@ const AdminButton = ({ children, variant = 'primary', className = '', ...props }
     <motion.button
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      type={type}
+      disabled={disabled}
       className={`relative px-4 py-2 font-bold uppercase tracking-wider text-sm overflow-hidden flex items-center justify-center gap-2 ${className}`}
       style={{ fontFamily: FONTS.ACCENT, color: THEME.TEXT_PRIMARY }}
-      {...props}
     >
       <div className="absolute inset-0 border-2 transform -skew-x-12" 
            style={{ backgroundColor: bgColor, borderColor: borderColor, borderStyle: isPrimary || variant === 'success' ? 'solid' : 'dashed' }}>
@@ -69,7 +116,7 @@ const AdminButton = ({ children, variant = 'primary', className = '', ...props }
 };
 
 // 2. Tribal Card (Container)
-const TribalCard = ({ children, title, className = '' }) => (
+const TribalCard: React.FC<TribalCardProps> = ({ children, title, className = '' }) => (
   <div className={`relative p-6 rounded-xl border-l-4 border-b-4 ${className}`}
        style={{ backgroundColor: THEME.BG_SECONDARY, borderColor: THEME.ACCENT_RED }}>
     {title && (
@@ -137,8 +184,8 @@ const DashboardOverview = () => (
 
 
 // MODULE 2: PROJECT MANAGEMENT [cite: 15-23]
-const ProjectsModule = () => {
-  const [activeTab, setActiveTab] = useState('proposed'); // 'proposed' or 'active'
+const ProjectsModule: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'proposed' | 'active'>('proposed'); // 'proposed' or 'active'
 
   return (
     <div className="space-y-6">
@@ -263,11 +310,11 @@ const MembersModule = () => (
 
 // --- MAIN ADMIN LAYOUT ---
 
-const AdminDashboard = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [activeModule, setActiveModule] = useState('dashboard');
+const AdminDashboard: React.FC = () => {
+  const [isSidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [activeModule, setActiveModule] = useState<string>('dashboard');
 
-  const MENU_ITEMS = [
+  const MENU_ITEMS: MenuItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'projects', label: 'Projects', icon: <FolderKanban size={20} /> },
     { id: 'members', label: 'Members', icon: <Users size={20} /> },
