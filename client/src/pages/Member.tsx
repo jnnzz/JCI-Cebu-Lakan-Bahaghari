@@ -5,12 +5,66 @@ import {
   XCircle, Plus, Trophy, BookOpen, MessageSquare, 
   Menu, Bell, Search, LogOut, ChevronRight, User,
   Clock, MapPin, Send, AlertCircle, Bookmark, Filter, 
+  LucideIcon,
 } from 'lucide-react';
 import JCIlogo from '../assets/logo-JCI.png'; 
 
+// --- TYPES ---
+interface GlassCardProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+interface SectionHeaderProps {
+  title?: string;
+  subtitle?: string;
+  action?: React.ReactNode;
+}
+
+interface BadgeProps {
+  status: string;
+}
+
+interface MemberStats {
+  rankName: string;
+  eventsAttended: number;
+  projectsCompleted: number;
+}
+
+interface Activity {
+  id: number;
+  title: string;
+  type: 'Event' | 'Project';
+  date: string;
+  role: string;
+  status: 'Attended' | 'Completed';
+}
+
+interface Proposal {
+  id: number;
+  title: string;
+  date: string;
+  budget: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+}
+
+interface BlogPost {
+  id: number;
+  title: string;
+  author: string;
+  date: string;
+  readTime: string;
+}
+
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+}
+
 // --- 1. REUSABLE UI COMPONENTS ---
 
-const GlassCard = ({ children, className = '' }) => (
+const GlassCard: React.FC<GlassCardProps> = ({ children, className = '' }) => (
   <div className={`relative group bg-[#1E1C1C]/80 backdrop-blur-md border border-white/[0.08] rounded-2xl shadow-2xl ${className}`}>
     <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
     <div className="relative z-10 h-full">
@@ -19,7 +73,7 @@ const GlassCard = ({ children, className = '' }) => (
   </div>
 );
 
-const SectionHeader = ({ title, subtitle, action }) => (
+const SectionHeader: React.FC<SectionHeaderProps> = ({ title, subtitle, action }) => (
   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
     <div>
       <h2 className="text-2xl md:text-3xl font-bold text-[#F4F1E8] tracking-tight">{title}</h2>
@@ -29,8 +83,8 @@ const SectionHeader = ({ title, subtitle, action }) => (
   </div>
 );
 
-const Badge = ({ status }) => {
-    const styles = {
+const Badge: React.FC<BadgeProps> = ({ status }) => {
+    const styles: Record<string, string> = {
       'Completed': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
       'Attended': 'bg-gray-500/10 text-gray-400 border-gray-500/20',
     };
@@ -89,19 +143,19 @@ const VoiceFeedbackSVG = () => (
 
 // --- 2. MOCK DATA ---
 
-const MEMBER_STATS = { rankName: 'JCI Senator', eventsAttended: 12, projectsCompleted: 5 };
-const MY_ACTIVITIES = [
+const MEMBER_STATS: MemberStats = { rankName: 'JCI Senator', eventsAttended: 12, projectsCompleted: 5 };
+const MY_ACTIVITIES: Activity[] = [
     { id: 1, title: 'Induction Night 2024', type: 'Event', date: 'Jan 15, 2024', role: 'Attendee', status: 'Attended' },
     { id: 2, title: 'Barangay Clean-up', type: 'Project', date: 'Feb 02, 2024', role: 'Volunteer', status: 'Completed' },
 ];
 
-const MY_PROPOSALS = [
+const MY_PROPOSALS: Proposal[] = [
   { id: 1, title: 'Youth Tech Summit', date: 'Feb 10, 2025', budget: '₱25,000', status: 'Pending' },
   { id: 2, title: 'Community Garden', date: 'Jan 05, 2025', budget: '₱5,000', status: 'Approved' },
   { id: 3, title: 'Beach Party', date: 'Dec 12, 2024', budget: '₱50,000', status: 'Rejected' },
 ];
 
-const BLOG_POSTS = [
+const BLOG_POSTS: BlogPost[] = [
   { id: 1, title: "The JCI Creed Explained", author: "Pres. Matt", date: "2 days ago", readTime: "5 min" },
   { id: 2, title: "Upcoming National Convention", author: "Sec. Gen", date: "1 week ago", readTime: "3 min" },
 ];
@@ -234,8 +288,8 @@ const MemberHome = () => (
   </div>
 );
 
-const ProposalCenter = () => {
-  const [activeTab, setActiveTab] = useState('New'); // New, My Proposals
+const ProposalCenter: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'New' | 'History'>('New'); // New, My Proposals
 
   return (
     <div className="space-y-6">
@@ -290,7 +344,7 @@ const ProposalCenter = () => {
 
                <div className="space-y-2">
                   <label className="text-xs font-mono text-gray-400 uppercase">Project Description & Objectives</label>
-                  <textarea rows="4" className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FFBC00] focus:outline-none transition-colors" placeholder="Describe the impact of this project..."></textarea>
+                  <textarea rows={4} className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FFBC00] focus:outline-none transition-colors" placeholder="Describe the impact of this project..."></textarea>
                </div>
 
                <div className="pt-4 flex flex-col sm:flex-row justify-end gap-3">
@@ -415,7 +469,7 @@ const FeedbackForm = () => (
            </div>
            <div>
               <label className="text-xs font-mono text-gray-400 uppercase mb-2 block">Message</label>
-              <textarea rows="5" className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FFBC00] focus:outline-none" placeholder="Type your message here..."></textarea>
+              <textarea rows={5} className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#FFBC00] focus:outline-none" placeholder="Type your message here..."></textarea>
            </div>
            <div className="flex items-center gap-2">
               <input type="checkbox" id="anon" className="rounded bg-black/20 border-white/10 text-[#A83232] focus:ring-0"/>
@@ -431,11 +485,11 @@ const FeedbackForm = () => (
 
 // --- 4. MAIN LAYOUT SHELL ---
 
-const MemberDashboard = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [activeModule, setActiveModule] = useState('dashboard');
+const MemberDashboard: React.FC = () => {
+  const [isSidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [activeModule, setActiveModule] = useState<string>('dashboard');
 
-  const MENU = [
+  const MENU: MenuItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'proposals', label: 'Project Center', icon: FileText }, 
     { id: 'pakkbook', label: 'PAKKBOOK', icon: BookOpen },

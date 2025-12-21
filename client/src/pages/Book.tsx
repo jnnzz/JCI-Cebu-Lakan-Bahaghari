@@ -7,6 +7,47 @@ import {
 } from 'lucide-react';
 import JCIlogo from '../assets/logo-removedBG.png'; 
 
+// --- TypeScript Interfaces ---
+interface PageProps {
+  children: React.ReactNode;
+  number?: string | number;
+  side?: 'left' | 'right';
+  className?: string;
+}
+
+interface InfoPanelProps {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  title: string;
+  subtitle: string;
+  decorativeElement?: React.ReactNode;
+}
+
+interface FormSectionProps {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+  onNext: () => void;
+  isSubmit?: boolean;
+}
+
+interface InputFieldProps {
+  label: string;
+  type?: string;
+  placeholder?: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  profession: string;
+  interest: string;
+}
+
 // --- Styles & Textures ---
 const TEXTURES = {
   LEATHER: "https://www.transparenttextures.com/patterns/black-thread.png",
@@ -17,7 +58,7 @@ const TEXTURES = {
 // --- Reusable Components ---
 
 // 1. The Paper Page Wrapper (Handles Shadows & Texture)
-const Page = forwardRef((props, ref) => {
+const Page = forwardRef<HTMLDivElement, PageProps>((props, ref) => {
   return (
     <div 
       className={`demoPage h-full bg-[#fdfbf7] overflow-hidden shadow-inner flex flex-col ${props.className || ''}`} 
@@ -48,7 +89,7 @@ const Page = forwardRef((props, ref) => {
 });
 
 // 2. Left Side: Illustration / Context Panel
-const InfoPanel = ({ icon: Icon, title, subtitle, decorativeElement }) => (
+const InfoPanel: React.FC<InfoPanelProps> = ({ icon: Icon, title, subtitle, decorativeElement }) => (
   <div className="h-full flex flex-col justify-center items-center text-center space-y-6 relative overflow-hidden rounded-lg border border-gray-100 bg-white/50 p-6 shadow-sm">
     {/* Decorative Background Elements */}
     <div className="absolute top-0 left-0 w-24 h-24 bg-red-50 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2"></div>
@@ -68,7 +109,7 @@ const InfoPanel = ({ icon: Icon, title, subtitle, decorativeElement }) => (
 );
 
 // 3. Right Side: Form Step
-const FormSection = ({ title, description, children, onNext, isSubmit }) => (
+const FormSection: React.FC<FormSectionProps> = ({ title, description, children, onNext, isSubmit }) => (
   <div className="h-full flex flex-col">
     <div className="mb-8 border-b border-gray-200 pb-4">
       <h2 className="text-xl font-bold text-gray-800 tracking-tight flex items-center gap-2">
@@ -98,7 +139,7 @@ const FormSection = ({ title, description, children, onNext, isSubmit }) => (
 );
 
 // --- Styled Input Component ---
-const InputField = ({ label, type = "text", placeholder, name, value, onChange }) => (
+const InputField: React.FC<InputFieldProps> = ({ label, type = "text", placeholder, name, value, onChange }) => (
   <div className="group">
     <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-red-700">{label}</label>
     <input 
@@ -113,9 +154,9 @@ const InputField = ({ label, type = "text", placeholder, name, value, onChange }
 );
 
 // --- Main Book Component ---
-const Book = () => {
-  const bookRef = useRef(null);
-  const [formData, setFormData] = useState({
+const Book: React.FC = () => {
+  const bookRef = useRef<HTMLFlipBook | null>(null);
+  const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -125,10 +166,12 @@ const Book = () => {
   });
 
   const nextFlip = () => {
-    bookRef.current.pageFlip().flipNext();
+    if (bookRef.current) {
+      bookRef.current.pageFlip().flipNext();
+    }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 

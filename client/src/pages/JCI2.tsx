@@ -1,8 +1,63 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Menu, X, ArrowRight, TrendingUp, Users, Zap, BookOpen, MapPin, Mail, Phone, Sun, Moon } from 'lucide-react';
 import * as THREE from 'three';
 import JCIlogo from '../assets/logo-JCI.png'; // Ensure this path is correct in your project
+
+// --- TYPES ---
+interface CTAButtonProps {
+  children: React.ReactNode;
+  primary?: boolean;
+  className?: string;
+  isDarkMode: boolean;
+  onClick?: () => void;
+}
+
+interface SectionTitleProps {
+  title: string;
+  subtitle: string;
+  isDarkMode: boolean;
+}
+
+interface HeaderProps {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+  activeSection: string;
+  scrollToSection: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
+}
+
+interface SubtleGeometricBackgroundProps {
+  isDarkMode: boolean;
+}
+
+interface ThreeDCanvasProps {
+  isDarkMode: boolean;
+}
+
+interface HeroSectionProps {
+  isDarkMode: boolean;
+}
+
+interface VisionMissionSectionProps {
+  isDarkMode: boolean;
+}
+
+interface FeatureModulesSectionProps {
+  isDarkMode: boolean;
+}
+
+interface EventHighlightSectionProps {
+  isDarkMode: boolean;
+}
+
+interface FooterProps {
+  isDarkMode: boolean;
+}
+
+interface NavTab {
+  name: string;
+  href: string;
+}
 
 // --- New Color and Style Configuration ---
 const COLORS = {
@@ -16,10 +71,10 @@ const COLORS = {
 
 // --- Theme Helpers ---
 // "Dark Mode" is now the Red Dominant theme. "Light Mode" is the Cream theme.
-const getBgColor = (isDark) => isDark ? COLORS.RED_BG : COLORS.CREAM;
-const getTextColor = (isDark) => isDark ? COLORS.CREAM : COLORS.BLACK;
-const getAccentColor = (isDark) => isDark ? COLORS.YELLOW : COLORS.RED_BG;
-const getSecondaryBgColor = (isDark) => isDark ? '#B31414' : '#E6E1D6'; // Slightly darker red / slightly darker cream
+const getBgColor = (isDark: boolean): string => isDark ? COLORS.RED_BG : COLORS.CREAM;
+const getTextColor = (isDark: boolean): string => isDark ? COLORS.CREAM : COLORS.BLACK;
+const getAccentColor = (isDark: boolean): string => isDark ? COLORS.YELLOW : COLORS.RED_BG;
+const getSecondaryBgColor = (isDark: boolean): string => isDark ? '#B31414' : '#E6E1D6'; // Slightly darker red / slightly darker cream
 
 const FONTS = {
   HEADER: '"Dela Gothic One", cursive',
@@ -36,7 +91,7 @@ const NAV_TABS = [
 ];
 
 // --- Framer Motion Variants ---
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0, y: 50 },
   visible: {
     opacity: 1,
@@ -45,12 +100,12 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-const slideUp = {
+const slideUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
@@ -61,7 +116,7 @@ const slideUp = {
 
 // --- Components ---
 
-const CTAButton = ({ children, primary = true, className = '', isDarkMode, ...props }) => {
+const CTAButton: React.FC<CTAButtonProps> = ({ children, primary = true, className = '', isDarkMode, onClick }) => {
   const bgColor = primary 
     ? (isDarkMode ? COLORS.YELLOW : COLORS.RED_BG) 
     : 'transparent';
@@ -90,14 +145,14 @@ const CTAButton = ({ children, primary = true, className = '', isDarkMode, ...pr
       }}
       whileHover={{ scale: 1.02, boxShadow: '6px 6px 0px 0px rgba(0, 0, 0, 0.3)', x: -2, y: -2 }}
       whileTap={{ scale: 0.98, boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 0.3)', x: 0, y: 0 }}
-      {...props}
+      onClick={onClick}
     >
       {children}
     </motion.button>
   );
 };
 
-const SectionTitle = ({ title, subtitle, isDarkMode }) => (
+const SectionTitle: React.FC<SectionTitleProps> = ({ title, subtitle, isDarkMode }) => (
   <div className="text-center mb-16 relative">
     <motion.h3
       className="text-lg md:text-xl uppercase font-extrabold tracking-[0.2em] mb-2"
@@ -132,9 +187,9 @@ const SectionTitle = ({ title, subtitle, isDarkMode }) => (
 );
 
 // --- Header & Navigation ---
-const Header = ({ isDarkMode, toggleDarkMode, activeSection, scrollToSection }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+const Header: React.FC<HeaderProps> = ({ isDarkMode, toggleDarkMode, activeSection, scrollToSection }) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -256,7 +311,7 @@ const Header = ({ isDarkMode, toggleDarkMode, activeSection, scrollToSection }) 
 };
 
 // --- Tribal/Geometric Background ---
-const SubtleGeometricBackground = ({ isDarkMode }) => {
+const SubtleGeometricBackground: React.FC<SubtleGeometricBackgroundProps> = ({ isDarkMode }) => {
   const strokeColor = isDarkMode ? COLORS.CREAM : COLORS.BLACK;
   const opacity = isDarkMode ? 0.05 : 0.03;
   
@@ -281,10 +336,10 @@ const SubtleGeometricBackground = ({ isDarkMode }) => {
 }
 
 // --- 3D Canvas (Holographic Globe) ---
-const ThreeDCanvas = ({ isDarkMode }) => {
-  const mountRef = useRef(null);
-  const globeGroupRef = useRef(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
+const ThreeDCanvas: React.FC<ThreeDCanvasProps> = ({ isDarkMode }) => {
+  const mountRef = useRef<HTMLDivElement>(null);
+  const globeGroupRef = useRef<THREE.Group | null>(null);
+  const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     const currentMount = mountRef.current;
@@ -371,7 +426,7 @@ const ThreeDCanvas = ({ isDarkMode }) => {
       renderer.render(scene, camera);
     };
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
         mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
         mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
     };
@@ -389,7 +444,7 @@ const ThreeDCanvas = ({ isDarkMode }) => {
   return <div ref={mountRef} className="w-full h-full" />;
 };
 
-const HeroSection = ({ isDarkMode }) => {
+const HeroSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   return (
     <motion.section
       id="home"
@@ -477,7 +532,7 @@ const HeroSection = ({ isDarkMode }) => {
 };
 
 // --- Values Section ---
-const VisionMissionSection = ({ isDarkMode }) => {
+const VisionMissionSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   const cards = [
     { title: 'Diversity', desc: 'Embracing every background and perspective.', color: COLORS.YELLOW },
     { title: 'Equity', desc: 'Dismantling barriers to ensure fair opportunities.', color: COLORS.ORANGE },
@@ -545,7 +600,7 @@ const VisionMissionSection = ({ isDarkMode }) => {
 };
 
 // --- Feature Modules ---
-const FeatureModulesSection = ({ isDarkMode }) => {
+const FeatureModulesSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   const features = [
     { icon: <TrendingUp size={32} />, title: 'Leadership Tracker', desc: 'Monitor impact & growth.' },
     { icon: <Users size={32} />, title: 'Member Directory', desc: 'Connect locally & globally.' },
@@ -617,7 +672,7 @@ const FeatureModulesSection = ({ isDarkMode }) => {
 };
 
 // --- Events Section ---
-const EventHighlightSection = ({ isDarkMode }) => {
+const EventHighlightSection: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   return (
     <motion.section
       id="events"
@@ -684,7 +739,7 @@ const EventHighlightSection = ({ isDarkMode }) => {
 };
 
 // --- Footer ---
-const Footer = ({ isDarkMode }) => {
+const Footer: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   const footerBg = isDarkMode ? COLORS.BLACK : COLORS.RED_BG;
   const footerText = COLORS.CREAM;
 
@@ -745,13 +800,13 @@ const Footer = ({ isDarkMode }) => {
 };
 
 // --- Main App Component ---
-const App = () => {
-  const [isDarkMode, setIsDarkMode] = useState(true); // Default to Dark (Red Dominant) Mode
-  const [activeSection, setActiveSection] = useState('home');
+const App: React.FC = () => {
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false); // Changed default to Light Mode (Cream)
+  const [activeSection, setActiveSection] = useState<string>('home');
 
   const toggleDarkMode = () => setIsDarkMode(prev => !prev);
 
-  const scrollToSection = (e, href) => {
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     const id = href.substring(1);
     setActiveSection(id);

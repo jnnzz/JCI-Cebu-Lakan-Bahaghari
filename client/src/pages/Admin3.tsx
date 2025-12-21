@@ -5,9 +5,67 @@ import {
   MessageSquare, FileText, Menu, Check, XCircle, Search, 
   Plus, DollarSign, TrendingUp, TrendingDown, Eye, Bell, 
   Settings, LogOut, UserPlus, UserMinus, BarChart3, ChevronRight,
-  Edit, Trash2, Reply
+  Edit, Trash2, Reply, LucideIcon
 } from 'lucide-react';
 import JCIlogo from '../assets/logo-JCI.png'; 
+
+// --- TYPES ---
+interface CardProps {
+  children: React.ReactNode;
+  title?: string;
+  action?: React.ReactNode;
+  className?: string;
+}
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+  variant?: 'primary' | 'outline' | 'ghost' | 'success' | 'danger';
+  className?: string;
+  icon?: LucideIcon;
+}
+
+interface StatusBadgeProps {
+  status: string;
+}
+
+interface DashboardStat {
+  label: string;
+  value: string;
+  icon: LucideIcon;
+  color: string;
+}
+
+interface Project {
+  id: number;
+  title: string;
+  proponent: string;
+  status: 'Proposed' | 'In Progress' | 'Rejected' | 'Completed';
+  date: string;
+  budget?: string;
+  reason?: string;
+}
+
+interface Member {
+  id: number;
+  name: string;
+  role: string;
+  status: 'Active' | 'Separated';
+  dues: 'Paid' | 'Unpaid' | 'N/A';
+}
+
+interface Event {
+  id: number;
+  title: string;
+  type: string;
+  date: string;
+  status: 'Proposed' | 'In Progress';
+}
+
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+}
 
 // --- CONSTANTS & THEME ---
 const THEME = {
@@ -20,7 +78,7 @@ const THEME = {
 
 // --- REUSABLE COMPONENTS ---
 
-const Card = ({ children, title, action, className = '' }) => (
+const Card: React.FC<CardProps> = ({ children, title, action, className = '' }) => (
   <div className={`bg-[#211E1E] border border-white/5 rounded-xl shadow-lg p-6 ${className}`}>
     {(title || action) && (
       <div className="flex justify-between items-center mb-6">
@@ -32,8 +90,8 @@ const Card = ({ children, title, action, className = '' }) => (
   </div>
 );
 
-const Button = ({ children, variant = 'primary', className = '', icon: Icon, ...props }) => {
-  const variants = {
+const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', className = '', icon: Icon, ...props }) => {
+  const variants: Record<string, string> = {
     primary: `bg-[#A83232] hover:bg-[#8f2b2b] text-white shadow-md`,
     outline: `border border-white/20 hover:border-[#FFBC00] text-[#F4F1E8] hover:text-[#FFBC00] bg-transparent`,
     ghost: `text-gray-400 hover:text-white hover:bg-white/5`,
@@ -49,8 +107,8 @@ const Button = ({ children, variant = 'primary', className = '', icon: Icon, ...
   );
 };
 
-const StatusBadge = ({ status }) => {
-  const styles = {
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+  const styles: Record<string, string> = {
     'Proposed': 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
     'In Progress': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
     'Completed': 'bg-green-500/10 text-green-500 border-green-500/20',
@@ -69,7 +127,7 @@ const StatusBadge = ({ status }) => {
 
 // --- MOCK DATA ---
 
-const DASHBOARD_STATS = [
+const DASHBOARD_STATS: DashboardStat[] = [
   { label: 'Registered', value: '142', icon: Users, color: 'text-blue-400' },
   { label: 'Inducted', value: '89', icon: UserPlus, color: 'text-green-400' },
   { label: 'Separated', value: '12', icon: UserMinus, color: 'text-gray-400' },
@@ -78,20 +136,20 @@ const DASHBOARD_STATS = [
   { label: 'Recruitment Rate', value: '15.2%', icon: TrendingUp, color: 'text-emerald-400' },
 ];
 
-const PROJECTS = [
+const PROJECTS: Project[] = [
   { id: 1, title: 'Barangay Clean-up', proponent: 'Comm. Juan', status: 'Proposed', date: 'Feb 10', budget: '₱5,000' },
   { id: 2, title: 'Youth Summit', proponent: 'VP Sarah', status: 'In Progress', date: 'Mar 15', budget: '₱25,000' },
   { id: 3, title: 'Charity Gala', proponent: 'Pres. Matt', status: 'Rejected', date: 'Apr 20', reason: 'Budget constraints' },
   { id: 4, title: 'Tech Bootcamp', proponent: 'Dir. Alex', status: 'Completed', date: 'Jan 10', budget: '₱10,000' },
 ];
 
-const MEMBERS = [
+const MEMBERS: Member[] = [
   { id: 1, name: 'Juan Dela Cruz', role: 'Member', status: 'Active', dues: 'Paid' },
   { id: 2, name: 'Maria Clara', role: 'VP Internal', status: 'Active', dues: 'Unpaid' },
   { id: 3, name: 'Jose Rizal', role: 'Alumni', status: 'Separated', dues: 'N/A' },
 ];
 
-const EVENTS = [
+const EVENTS: Event[] = [
   { id: 1, title: 'General Membership Meeting', type: 'OTI', date: '2025-02-15', status: 'Proposed' },
   { id: 2, title: 'Induction Night', type: 'Event', date: '2025-03-01', status: 'In Progress' },
 ];
@@ -199,8 +257,8 @@ const CalendarView = () => {
 };
 
 // 3. PROJECT MANAGEMENT
-const ProjectManagement = () => {
-  const [tab, setTab] = useState('overview'); // overview, proposed, approved, rejected
+const ProjectManagement: React.FC = () => {
+  const [tab, setTab] = useState<string>('overview'); // overview, proposed, approved, rejected
   
   return (
     <div className="space-y-6">
@@ -287,7 +345,7 @@ const ProjectManagement = () => {
                  if(tab === 'rejected') return p.status === 'Rejected';
                  return false;
               }).length === 0 && (
-                <tr><td colSpan="5" className="p-8 text-center text-gray-500">No projects found in this category.</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-gray-500">No projects found in this category.</td></tr>
               )}
             </tbody>
           </table>
@@ -436,11 +494,11 @@ const BlogManagement = () => (
 
 // --- MAIN LAYOUT ---
 
-const AdminDashboard = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [activeModule, setActiveModule] = useState('dashboard');
+const AdminDashboard: React.FC = () => {
+  const [isSidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [activeModule, setActiveModule] = useState<string>('dashboard');
 
-  const MENU_ITEMS = [
+  const MENU_ITEMS: MenuItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'calendar', label: 'JCI Calendar', icon: CalendarIcon },
     { id: 'projects', label: 'Project Mgmt', icon: FolderKanban },
